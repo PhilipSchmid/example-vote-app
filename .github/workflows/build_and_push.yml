@@ -37,23 +37,5 @@ jobs:
       - name: Build the images
         run: docker-compose build
 
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v3.6.2
-        with:
-          flavor: |
-            latest=true
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMES }}
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-        
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2.9.0
-        with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+      - name: Push the images
+        run: docker-compose push
