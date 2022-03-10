@@ -17,7 +17,7 @@ env:
   IMAGE_NAMES: philipschmid/vote-demo-result,philipschmid/vote-demo-vote,philipschmid/vote-demo-worker
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -43,7 +43,7 @@ jobs:
         with:
           flavor: |
             latest=true
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PREFIX }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMES }}
           tags: |
             type=schedule
             type=ref,event=branch
