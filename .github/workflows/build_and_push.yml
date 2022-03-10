@@ -10,7 +10,7 @@ on:
 
 env:
   GITHUB_REGISTRY: ghcr.io
-  DOCKER_REGISTRY: docker.io
+  DOCKERHUB_REGISTRY: docker.io
 
 jobs:
   build:
@@ -36,13 +36,13 @@ jobs:
       - name: Push the images to the Github registry
         run: docker-compose push
 
-      - name: Log into registry ${{ env.DOCKER_REGISTRY }}
+      - name: Log into docker registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v1.14.1
         with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ secrets.DOCKER_REGISTRY_USER }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+          registry: ${{ env.DOCKERHUB_REGISTRY }}
+          username: ${{ env.DOCKER_REGISTRY_USER }}
+          password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
 
       - name: Push the images to the Github registry
         run: ./push-to-docker-hub.sh
