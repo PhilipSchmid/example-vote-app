@@ -191,6 +191,8 @@ kind: Ingress
 metadata:
   name: result
   namespace: demo
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
   - host: "result.YOUR-PUBLIC-IP-HERE.xip.puzzle.ch"
@@ -251,6 +253,8 @@ kind: Ingress
 metadata:
   name: vote
   namespace: demo
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
   - host: "vote.YOUR-PUBLIC-IP-HERE.xip.puzzle.ch"
