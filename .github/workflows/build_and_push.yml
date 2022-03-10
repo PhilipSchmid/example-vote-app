@@ -13,8 +13,6 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAMES: philipschmid/vote-demo-result,philipschmid/vote-demo-vote,philipschmid/vote-demo-worker
 
 jobs:
   build:
