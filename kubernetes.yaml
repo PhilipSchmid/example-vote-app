@@ -165,7 +165,7 @@ spec:
     spec:
       containers:
       - name: result
-        image: ghcr.io/philipschmid/vote-demo-result:1.0
+        image: pschmid/vote-demo-result:1.0
         ports:
         - containerPort: 80
           name: result
@@ -225,7 +225,7 @@ spec:
     spec:
       containers:
       - name: vote
-        image: ghcr.io/philipschmid/vote-demo-vote:1.0
+        image: pschmid/vote-demo-vote:1.0
         ports:
         - containerPort: 80
           name: vote
@@ -284,5 +284,5 @@ spec:
         app: worker
     spec:
       containers:
-      - image: ghcr.io/philipschmid/vote-demo-worker:1.0
+      - image: pschmid/vote-demo-worker:1.0
         name: worker
