@@ -1,5 +1,4 @@
 # Using official dotnet base image
-# FROM microsoft/dotnet:2.0.0-sdk
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2
 
 # Set the application directory

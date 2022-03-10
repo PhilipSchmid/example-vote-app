@@ -1,9 +1,9 @@
-version: "3.7"
+version: "2.4"
 
 services:
   vote:
     build: ./src/vote
-    image: vote-webapp:1.0
+    image: ghcr.io/philipschmid/vote-demo-vote:1.0
     restart: on-failure
     ports:
       - "5000:80"
@@ -13,22 +13,19 @@ services:
 
   result:
     build: ./src/result
-    image: result-webapp:1.0
+    image: ghcr.io/philipschmid/vote-demo-result:1.0
     restart: on-failure
     depends_on:
       - "db"
     ports:
-      # TODO: Map the host port 5001 to the
-      # container's port 80.
-      # https://docs.docker.com/compose/compose-file/#ports
-      - "…"
+      - 5001:80
     networks:
       - front-tier
       - back-tier
 
   worker:
     build: ./src/worker
-    image: worker-app:1.0
+    image: ghcr.io/philipschmid/vote-demo-worker:1.0
     restart: on-failure
     depends_on:
       - "redis"
@@ -36,22 +33,20 @@ services:
       - back-tier
 
   redis:
-    image: redis:5.0.5-alpine
+    image: redis:6.2.6
     container_name: redis
     restart: on-failure
     networks:
       - back-tier
 
   db:
-    image: postgres:11.4-alpine
+    image: postgres:14.2-alpine
     container_name: db
     restart: on-failure
+    environment:
+      - POSTGRES_PASSWORD=postgres
     volumes:
-      # TODO: Mount the host directory "./db-data"
-      # to "/var/lib/postgresql/data" inside the
-      # container so the DB is persistent.
-      # https://docs.docker.com/compose/compose-file/#volumes
-      - "…"
+      - "./db-data:/var/lib/postgresql/data"
     networks:
       - back-tier
 

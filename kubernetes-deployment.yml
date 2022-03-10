@@ -1,88 +1,31 @@
-# TODO: Create a new namespace
+# NS
 ---
 apiVersion: v1
-kind: # TODO: Choose the correct volume type
+kind: Namespace
 metadata:
-  name: db-volume
-  # TODO: Add correct namespace
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 100Mi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/mnt/data"
+  name: demo
+
+# redis
 ---
 apiVersion: v1
-kind: # TODO: Choose the correct volume claim type
+kind: PersistentVolumeClaim
 metadata:
-  name: db-claim
-  # TODO: Add correct namespace
+  name: redis-pvc
+  namespace: demo
 spec:
-  storageClassName: manual
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
-      storage: 100Mi
+      storage: 1Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: db
-  name: db
-  # TODO: Add correct namespace
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: db
-  template:
-    metadata:
-      labels:
-        app: db
-    spec:
-      volumes:
-      - name: db-storage
-        persistentVolumeClaim:
-          claimName: db-claim
-      containers:
-      - image: postgres:9.4
-        name: postgres
-        ports:
-        - containerPort: 5432
-          name: postgres
-        volumeMounts:
-        - mountPath: /var/lib/postgresql/data
-          name: db-storage
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: db
-  name: db
-  # TODO: Add correct namespace
-spec:
-  type: ClusterIP
-  ports:
-  - name: "db-service"
-    port: 5432
-    targetPort: 5432
-  selector:
-    app: db
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
+  name: redis
+  namespace: demo
   labels:
     app: redis
-  name: redis
-  # TODO: Add correct namespace
 spec:
   replicas: 1
   selector:
@@ -93,16 +36,19 @@ spec:
       labels:
         app: redis
     spec:
-      # TODO: Create a new volume (not-persistent, name: redis-data)
       containers:
-      - image: redis:alpine
-        name: redis
+      - name: redis
+        image: redis:6.2.6
         ports:
         - containerPort: 6379
           name: redis
         volumeMounts:
-        - mountPath: /data
-          name: redis-data
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+         claimName: redis-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -110,23 +56,103 @@ metadata:
   labels:
     app: redis
   name: redis
-  # TODO: Add correct namespace
+  namespace: demo
 spec:
   type: ClusterIP
   ports:
-  - name: "redis-service"
+  - name: redis-service
     port: 6379
     targetPort: 6379
   selector:
     app: redis
+
+# db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: db
+  name: db
+  namespace: demo
+spec:
+  type: ClusterIP
+  ports:
+  - name: db
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: db
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-pgdata-path
+  namespace: demo
+data:
+  PGDATA: /var/lib/postgresql/data/pgdata
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-db-creds
+  namespace: demo
+type: Opaque
+stringData:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: demo
+  labels:
+    app: db
+spec:
+  replicas: 1
+  serviceName: db
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: db
+        image: postgres:14.2-alpine
+        envFrom:
+        - configMapRef:
+            name: postgres-pgdata-path
+        - secretRef:
+            name: postgres-db-creds
+        ports:
+        - containerPort: 5432
+          name: db
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+
+# result
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: result
+  namespace: demo
   labels:
     app: result
-  name: result
-  # TODO: Add correct namespace
 spec:
   replicas: 1
   selector:
@@ -138,8 +164,8 @@ spec:
         app: result
     spec:
       containers:
-      - image: hsrnetwork/vote-result:latest
-        name: result
+      - name: result
+        image: ghcr.io/philipschmid/vote-demo-result:1.0
         ports:
         - containerPort: 80
           name: result
@@ -147,22 +173,48 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: result
+  namespace: demo
   labels:
     app: result
-  name: result
-  # TODO: Add correct namespace
 spec:
-  # TODO: Create a new NodePort (port: 5000, targetPort: 80, nodePort: 31000)
+  type: ClusterIP
+  ports:
+  - port: 5001
+    targetPort: 80
+    name: result-service
+  selector:
+    app: result
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: result
+  namespace: demo
+spec:
+  rules:
+  - host: "result.YOUR-PUBLIC-IP-HERE.xip.puzzle.ch"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: result
+            port:
+              number: 5001
+
+# vote
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: vote
+  namespace: demo
   labels:
     app: vote
-  name: vote
-  # TODO: Add correct namespace
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: vote
@@ -172,8 +224,8 @@ spec:
         app: vote
     spec:
       containers:
-      - image: hsrnetwork/vote-vote:latest
-        name: vote
+      - name: vote
+        image: ghcr.io/philipschmid/vote-demo-vote:1.0
         ports:
         - containerPort: 80
           name: vote
@@ -181,11 +233,56 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    app: vote
   name: vote
-  # TODO: Add correct namespace
+  namespace: demo
+  labels:
+    apps: vote
 spec:
-  # TODO: Create a new NodePort (port: 5000, targetPort: 80, nodePort: 31000)
+  type: ClusterIP
+  ports:
+    - port: 5000
+      targetPort: 80
+      name: vote-service
+  selector:
+    app: vote
 ---
-# TODO: Create the worker deployment (image: hsrnetwork/vote-worker:latest, name: worker)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vote
+  namespace: demo
+spec:
+  rules:
+  - host: "vote.YOUR-PUBLIC-IP-HERE.xip.puzzle.ch"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vote
+            port:
+              number: 5000
+
+# worker
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: worker
+  name: worker
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - image: ghcr.io/philipschmid/vote-demo-worker:1.0
+        name: worker

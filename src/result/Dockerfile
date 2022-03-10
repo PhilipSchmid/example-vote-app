@@ -1,5 +1,5 @@
 # Using official node runtime base image
-FROM node:8.16.0-alpine
+FROM node:17-alpine3.14
 
 # Set the application directory
 RUN mkdir -p /app
