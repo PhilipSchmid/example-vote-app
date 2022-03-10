@@ -3,7 +3,7 @@ version: "2.4"
 services:
   vote:
     build: ./src/vote
-    image: ghcr.io/philipschmid/vote-demo-vote:1.0
+    image: ghcr.io/philipschmid/vote-demo-vote
     restart: on-failure
     ports:
       - "5000:80"
@@ -13,7 +13,7 @@ services:
 
   result:
     build: ./src/result
-    image: ghcr.io/philipschmid/vote-demo-result:1.0
+    image: ghcr.io/philipschmid/vote-demo-result
     restart: on-failure
     depends_on:
       - "db"
@@ -25,7 +25,7 @@ services:
 
   worker:
     build: ./src/worker
-    image: ghcr.io/philipschmid/vote-demo-worker:1.0
+    image: ghcr.io/philipschmid/vote-demo-worker
     restart: on-failure
     depends_on:
       - "redis"

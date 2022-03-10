@@ -165,7 +165,7 @@ spec:
     spec:
       containers:
       - name: result
-        image: pschmid/vote-demo-result:1.0
+        image: pschmid/vote-demo-result
         ports:
         - containerPort: 80
           name: result
@@ -227,7 +227,7 @@ spec:
     spec:
       containers:
       - name: vote
-        image: pschmid/vote-demo-vote:1.0
+        image: pschmid/vote-demo-vote
         ports:
         - containerPort: 80
           name: vote
@@ -288,5 +288,5 @@ spec:
         app: worker
     spec:
       containers:
-      - image: pschmid/vote-demo-worker:1.0
+      - image: pschmid/vote-demo-worker
         name: worker
