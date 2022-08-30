@@ -1,0 +1,3 @@
+is_global = true
+build_property.RootNamespace = Worker
+build_property.ProjectDir = /Users/phil/Git/FHNW/voting-app/src/worker/dotnet/Worker/

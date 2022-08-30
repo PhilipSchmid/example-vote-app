@@ -1,0 +1,60 @@
+services:
+  vote:
+    # TODO: Ensure you are able to use "docker-compose build" to automatically build the Dockerfile within "./src/vote".
+    ...
+    image: vote-demo-vote
+    restart: on-failure
+    # TODO: Container port 80 should be exposed to 5000 on the host:
+    ports:
+      - ...
+    # TODO: The vote service needs a connection to the frontend and backend network
+    ...
+
+
+  result:
+    build: ./src/result
+    image: vote-demo-result
+    restart: on-failure
+    # TODO: This microservice should be started after the "db" service. Define this dependency.
+    ...
+    # TODO: Container port 80 should be exposed to 5001 on the host:
+    ...
+    # TODO: The vote service needs a connection to the frontend and backend network
+    ...
+
+
+  worker:
+    build: ./src/worker
+    image: vote-demo-worker
+    restart: on-failure
+    # TODO: This microservice should be started after the "redis" service. Define this dependency.
+    ...
+    networks:
+      - back-tier
+
+  redis:
+    # TODO: Use the official Redis image from the Docker Hub. Use the latest 6.x.x version.
+    image: ...
+    # TODO: Defined a static container name for this service. It should be called "redis".
+    ...
+    restart: on-failure
+    networks:
+      - back-tier
+
+  db:
+    image: postgres:14.2-alpine
+    # TODO: Defined a static container name for this service. It should be called "db".
+    container_name: ...
+    restart: on-failure
+    # TODO: Ensure to set the superuser password for PostgreSQL via the regarding environment variable (see https://hub.docker.com/_/postgres).
+    environment:
+      - ...
+    # TODO: Mount the host directory "./db-data" to the default "PGDATA" path of this image. This will ensures your data is persisted and survives restarts.
+    volumes:
+      - ...
+    networks:
+      - back-tier
+
+networks:
+  # TODO: Define two networks: "front-tier" and "back-tier". Ensure "back-tier" is not bridged to the outside world.
+  ...
