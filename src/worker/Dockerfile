@@ -1,5 +1,5 @@
 # Using official dotnet base image
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2
+FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/core/sdk:2.2
 
 # Set the application directory
 RUN mkdir -p /code

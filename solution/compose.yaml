@@ -28,6 +28,8 @@ services:
       - back-tier
 
   worker:
+    # Required for ARM devices:
+    platform: linux/amd64
     build: ./src/worker
     image: vote-demo-worker
     restart: on-failure
