@@ -1,5 +1,5 @@
-# TODO: Use the official python image as base image. Use version "3.10.2-buster".
-FROM python:3.10.2-buster
+# TODO: Use the official python image as base image. Use version "3.11.2-bullseye".
+FROM python:3.11.2-bullseye
 
 # TODO: Create a directory called "/app"
 RUN mkdir -p /app
