@@ -35,7 +35,7 @@ services:
       - back-tier
 
   redis:
-    # TODO: Use the official Redis image from the Docker Hub. Use the latest 6.x.x version.
+    # TODO: Use the official Redis image from the Docker Hub. Use the latest 7.x.x version.
     image: ...
     # TODO: Defined a static container name for this service. It should be called "redis".
     ...
@@ -44,7 +44,7 @@ services:
       - back-tier
 
   db:
-    image: postgres:14.2-alpine
+    image: postgres:14.7-alpine
     # TODO: Defined a static container name for this service. It should be called "db".
     container_name: ...
     restart: on-failure
